@@ -1,0 +1,871 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="theme-color" content="#fff5f7" />
+<title>Наши места · Москва</title>
+<style>
+  :root {
+    --ink: #44323d;
+    --muted: #927d89;
+    --pink: #e88eae;
+    --pink-deep: #cf6f96;
+    --pink-soft: #fae4ec;
+    --rose-bg: #fff5f7;
+    --cream: #fffdfb;
+    --line: #f1dfe6;
+    --green: #77a895;
+    --green-soft: #e7f2ed;
+    --shadow: 0 12px 35px rgba(120, 72, 94, .10);
+    --radius: 22px;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; min-height: 100%; color: var(--ink); background: var(--rose-bg); font-family: ui-rounded, "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, sans-serif; }
+  body { min-height: 100vh; }
+  button, input, textarea, select { font: inherit; }
+  button { cursor: pointer; }
+  .app-shell { max-width: 1680px; margin: 0 auto; padding: 18px 22px 28px; }
+  .topbar { display:flex; align-items:center; justify-content:space-between; gap:18px; margin-bottom:16px; }
+  .brand { display:flex; align-items:center; gap:13px; min-width:0; }
+  .brand-mark { width:48px; height:48px; flex:0 0 48px; border-radius:17px; display:grid; place-items:center; color:#fff; background:linear-gradient(145deg,#f5afc5,#df83a7); box-shadow:0 8px 18px #e9a5bd55; font-size:24px; transform:rotate(-4deg); }
+  .brand h1 { font-family: Georgia, "Times New Roman", serif; font-size:clamp(24px,3vw,33px); line-height:1.02; margin:0; font-weight:600; letter-spacing:-.7px; }
+  .brand p { margin:5px 0 0; color:var(--muted); font-size:12px; letter-spacing:.2px; }
+  .top-actions { display:flex; align-items:center; gap:8px; flex-wrap:wrap; justify-content:flex-end; }
+  .btn { border:1px solid var(--line); background:var(--cream); color:var(--ink); border-radius:14px; padding:10px 14px; font-size:13px; font-weight:650; display:inline-flex; align-items:center; justify-content:center; gap:8px; transition:transform .16s, box-shadow .16s, background .16s; box-shadow:0 3px 9px #74445c08; }
+  .btn:hover { transform:translateY(-1px); box-shadow:0 7px 16px #74445c12; }
+  .btn:active { transform:translateY(0); }
+  .btn.primary { color:white; border-color:transparent; background:linear-gradient(135deg,#e995b2,#d9769b); box-shadow:0 8px 18px #df8eac45; }
+  .btn.soft { background:var(--pink-soft); color:#a34f73; border-color:#f3d4e0; }
+  .btn.ghost { background:transparent; box-shadow:none; }
+  .btn.danger { color:#b75a69; background:#fff5f5; border-color:#f5d9dc; }
+  .btn.icon-only { width:39px; height:39px; padding:0; font-size:18px; }
+  .stats { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px; margin-bottom:16px; }
+  .stat { background:rgba(255,253,251,.88); border:1px solid var(--line); border-radius:18px; padding:12px 16px; display:flex; align-items:center; gap:12px; min-width:0; box-shadow:0 3px 12px #70455d07; }
+  .stat-icon { width:38px; height:38px; border-radius:13px; display:grid; place-items:center; background:var(--pink-soft); font-size:18px; flex:0 0 auto; }
+  .stat:nth-child(2) .stat-icon { background:#f7eaf0; }
+  .stat:nth-child(3) .stat-icon { background:var(--green-soft); }
+  .stat strong { display:block; font-size:23px; line-height:1.05; font-weight:750; letter-spacing:-.7px; }
+  .stat span:last-child { display:block; color:var(--muted); font-size:11px; margin-top:3px; }
+  .view-switch { display:flex; justify-content:space-between; align-items:center; gap:12px; margin:0 0 12px; }
+  .view-tabs { background:#f7e7ed; padding:4px; border-radius:14px; display:inline-flex; gap:3px; }
+  .view-tab { border:0; background:transparent; color:#9f7f8e; padding:8px 14px; border-radius:11px; font-size:13px; font-weight:700; }
+  .view-tab.active { color:#9e4e70; background:var(--cream); box-shadow:0 3px 9px #6c3d540f; }
+  .view-hint { color:var(--muted); font-size:12px; }
+  .workspace { display:grid; grid-template-columns:340px minmax(0,1fr); gap:14px; min-height:650px; height:min(72vh,850px); }
+  .side-panel, .map-panel, .board-column { background:var(--cream); border:1px solid var(--line); border-radius:var(--radius); box-shadow:var(--shadow); overflow:hidden; }
+  .side-panel { display:flex; flex-direction:column; min-height:0; }
+  .side-head { padding:19px 18px 14px; border-bottom:1px solid #f5e8ed; }
+  .side-head h2, .column-head h2 { margin:0; font:600 20px Georgia,serif; letter-spacing:-.25px; }
+  .side-head p { margin:5px 0 13px; font-size:12px; color:var(--muted); }
+  .searchbox { position:relative; }
+  .searchbox span { position:absolute; top:50%; left:12px; transform:translateY(-50%); opacity:.55; }
+  .searchbox input { width:100%; border:1px solid var(--line); border-radius:12px; padding:10px 12px 10px 35px; outline:none; background:#fffafb; font-size:13px; color:var(--ink); }
+  .searchbox input:focus, .field input:focus, .field textarea:focus, .field select:focus { border-color:#e6a0ba; box-shadow:0 0 0 3px #f8e5ed; }
+  .filters { display:flex; align-items:center; gap:7px; overflow:auto; padding:12px 16px 10px; scrollbar-width:thin; }
+  .filter-chip { white-space:nowrap; padding:6px 10px; border:1px solid #f0dfe6; background:#fff9fb; color:#987e8b; border-radius:999px; font-size:11px; font-weight:650; }
+  .filter-chip.active { background:#f8e0e9; border-color:#f1cada; color:#a34d72; }
+  .side-list { padding:4px 11px 14px; overflow:auto; min-height:0; flex:1; }
+  .side-item { border:1px solid transparent; border-radius:14px; padding:10px; display:flex; align-items:center; gap:10px; cursor:pointer; transition:.15s; }
+  .side-item:hover { background:#fff6f9; border-color:#f6e4eb; }
+  .side-thumb { width:42px; height:42px; flex:0 0 42px; border-radius:12px; overflow:hidden; display:grid; place-items:center; background:linear-gradient(145deg,#f8dce6,#fff0f3); font-size:18px; }
+  .side-thumb img { width:100%; height:100%; object-fit:cover; }
+  .side-item-main { min-width:0; flex:1; }
+  .side-item-main strong { display:block; font-size:12px; white-space:nowrap; text-overflow:ellipsis; overflow:hidden; }
+  .side-item-main span { display:block; margin-top:3px; color:var(--muted); font-size:10px; white-space:nowrap; text-overflow:ellipsis; overflow:hidden; }
+  .status-dot { width:8px; height:8px; border-radius:50%; background:#e99ab6; flex:0 0 auto; }
+  .status-dot.visited { background:#80ad9c; }
+  .map-panel { position:relative; min-width:0; min-height:0; background:#f0eae7; }
+  #map { position:absolute; inset:0; overflow:hidden; cursor:grab; touch-action:none; background:#e8e4df; }
+  #map.panning { cursor:grabbing; }
+  .tile-layer, .marker-layer { position:absolute; inset:0; pointer-events:none; }
+  .tile { position:absolute; width:256px; height:256px; user-select:none; -webkit-user-drag:none; }
+  .tile.tile-error { display:none; }
+  .marker-layer { z-index:5; }
+  .map-marker { pointer-events:auto; position:absolute; width:34px; height:40px; border:0; padding:0; background:transparent; transform:translate(-50%,-95%); filter:drop-shadow(0 3px 3px #5f455044); z-index:2; }
+  .map-marker .pin { width:31px; height:31px; border:3px solid #fff; border-radius:50% 50% 50% 6px; transform:rotate(-45deg); display:grid; place-items:center; background:#e78eae; color:white; box-shadow:0 3px 8px #78435c33; }
+  .map-marker.visited .pin { background:#79a995; }
+  .map-marker .pin span { transform:rotate(45deg); font-size:13px; line-height:1; }
+  .map-marker.selected { z-index:4; filter:drop-shadow(0 5px 7px #7b3e5e66); }
+  .map-marker.selected .pin { outline:3px solid #fff; transform:rotate(-45deg) scale(1.16); }
+  .map-marker:hover { z-index:5; }
+  .map-toolbar { position:absolute; z-index:8; top:14px; right:14px; display:flex; flex-direction:column; gap:7px; }
+  .map-tool { width:40px; height:40px; border:1px solid #e8dbe0; border-radius:13px; color:#785a68; background:#fffdfbf2; box-shadow:0 4px 12px #55334416; font-size:19px; }
+  .map-legend { position:absolute; bottom:15px; left:15px; z-index:8; display:flex; gap:12px; border:1px solid #ecdee4; border-radius:13px; background:#fffdfbf2; padding:9px 12px; color:#836e79; font-size:11px; box-shadow:0 4px 12px #55334415; }
+  .legend-item { display:flex; align-items:center; gap:6px; }
+  .legend-dot { width:9px; height:9px; border-radius:50%; background:#e78eae; }
+  .legend-dot.green { background:#79a995; }
+  .map-attribution { position:absolute; bottom:0; right:0; z-index:9; background:#fffdfbcc; padding:3px 7px; border-radius:5px 0 0 0; font-size:10px; color:#665963; }
+  .map-attribution a { color:#5f7084; text-decoration:none; }
+  .map-hint { position:absolute; top:14px; left:14px; z-index:7; background:#fffdfbeF; border:1px solid #efdee5; border-radius:12px; padding:9px 12px; color:#826c78; font-size:11px; box-shadow:0 4px 12px #55334412; max-width:min(65%,310px); }
+  .map-hint.pick { background:#fff0f5; border-color:#e8a6bd; color:#984d6d; }
+  .map-empty { position:absolute; z-index:6; left:50%; top:50%; transform:translate(-50%,-50%); background:#fffdfbf0; border:1px solid #f0dfe6; box-shadow:var(--shadow); border-radius:18px; width:min(340px,80%); text-align:center; padding:22px; pointer-events:none; }
+  .map-empty .big { font-size:27px; }
+  .map-empty strong { display:block; font:600 18px Georgia,serif; margin:8px 0 5px; }
+  .map-empty span { display:block; color:var(--muted); font-size:12px; line-height:1.5; }
+  .cards-view { display:none; }
+  .cards-view:not(.hidden) { display:block; }
+  .board { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:14px; min-height:460px; }
+  .board-column { min-height:450px; padding:0 15px 15px; }
+  .column-head { display:flex; align-items:center; justify-content:space-between; gap:10px; padding:18px 3px 13px; border-bottom:1px solid #f3e5eb; }
+  .column-title { display:flex; align-items:center; gap:9px; }
+  .column-title .emoji { width:34px; height:34px; display:grid; place-items:center; border-radius:12px; background:#fbe7ee; }
+  .visited-col .column-title .emoji { background:var(--green-soft); }
+  .count-pill { background:#f9e9ef; color:#9c6480; font-weight:750; font-size:11px; padding:5px 9px; border-radius:999px; }
+  .visited-col .count-pill { background:var(--green-soft); color:#638a7a; }
+  .drop-zone { min-height:360px; padding:12px 0 4px; border-radius:14px; transition:background .15s, outline .15s; }
+  .drop-zone.drag-over { background:#fff1f6; outline:2px dashed #e5a2bb; outline-offset:-3px; }
+  .visited-col .drop-zone.drag-over { background:#f1f8f4; outline-color:#9bc5b5; }
+  .place-card { position:relative; display:grid; grid-template-columns:104px minmax(0,1fr); gap:12px; padding:10px; border:1px solid #f1e2e8; border-radius:17px; margin-bottom:10px; background:#fffefd; box-shadow:0 3px 9px #74445c08; transition:transform .16s, box-shadow .16s, border-color .16s; cursor:pointer; }
+  .place-card:hover { transform:translateY(-2px); box-shadow:0 8px 18px #74445c12; border-color:#edcad8; }
+  .place-card.dragging { opacity:.35; transform:scale(.98); }
+  .card-photo { height:108px; width:104px; border-radius:12px; overflow:hidden; display:grid; place-items:center; background:linear-gradient(145deg,#f9e0e9,#fff4f6); font-size:28px; }
+  .card-photo img { width:100%; height:100%; object-fit:cover; }
+  .card-body { min-width:0; display:flex; flex-direction:column; }
+  .card-topline { display:flex; justify-content:space-between; align-items:center; gap:6px; }
+  .category-tag { color:#a46a82; background:#fbecf1; padding:4px 7px; font-size:9px; border-radius:999px; font-weight:700; max-width:80%; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .visited-col .category-tag { color:#688c7e; background:#edf5f1; }
+  .drag-handle { border:0; color:#b99eaa; background:transparent; padding:2px 4px; font-size:17px; cursor:grab; touch-action:none; line-height:1; }
+  .drag-handle:active { cursor:grabbing; }
+  .card-body h3 { font-size:14px; margin:5px 0 3px; line-height:1.2; font-weight:750; }
+  .card-address { color:var(--muted); font-size:10px; overflow:hidden; white-space:nowrap; text-overflow:ellipsis; }
+  .card-comment { color:#806c77; font-size:10px; margin:7px 0 0; line-height:1.4; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+  .card-bottom { display:flex; justify-content:space-between; align-items:center; gap:6px; margin-top:auto; padding-top:8px; }
+  .stars { color:#e1a14e; font-size:11px; letter-spacing:1px; }
+  .tiny-action { border:0; background:#fff2f6; color:#a65b7c; padding:5px 8px; border-radius:9px; font-size:10px; font-weight:700; }
+  .visited-col .tiny-action { background:#eef6f1; color:#668d7d; }
+  .empty-state { text-align:center; padding:40px 14px; color:var(--muted); }
+  .empty-state .empty-icon { font-size:28px; margin-bottom:9px; }
+  .empty-state strong { display:block; color:#725b68; font:600 17px Georgia,serif; margin-bottom:5px; }
+  .empty-state p { font-size:11px; line-height:1.5; margin:0 auto 13px; max-width:230px; }
+  .empty-state .btn { font-size:11px; padding:8px 11px; }
+  .footer-note { color:#a38d98; font-size:10px; text-align:center; padding:15px 5px 0; }
+  .footer-note a { color:#a46a82; }
+  .hidden { display:none !important; }
+  /* dialogs */
+  .modal-backdrop { position:fixed; inset:0; z-index:100; background:#3d263580; display:flex; align-items:center; justify-content:center; padding:18px; backdrop-filter:blur(4px); }
+  .modal { width:min(660px,100%); max-height:min(92vh,900px); overflow:auto; background:#fffdfc; border:1px solid #f4dfe8; border-radius:24px; box-shadow:0 22px 70px #39202f44; }
+  .modal-head { display:flex; align-items:flex-start; justify-content:space-between; gap:12px; padding:21px 23px 13px; border-bottom:1px solid #f4e7ec; }
+  .modal-head h2 { margin:0; font:600 23px Georgia,serif; }
+  .modal-head p { color:var(--muted); margin:4px 0 0; font-size:11px; }
+  .close-btn { border:0; background:#faedf2; color:#a45d7a; width:34px; height:34px; border-radius:11px; font-size:19px; }
+  .modal-content { padding:18px 23px 22px; }
+  .form-grid { display:grid; grid-template-columns:1fr 1fr; gap:13px; }
+  .field { min-width:0; }
+  .field.full { grid-column:1/-1; }
+  .field label { display:block; color:#806a76; font-size:11px; font-weight:750; margin:0 0 6px; }
+  .field label .optional { color:#b49da8; font-weight:500; }
+  .field input, .field textarea, .field select { width:100%; min-width:0; border:1px solid #eadbe2; border-radius:11px; padding:10px 11px; outline:none; background:#fffafb; color:var(--ink); font-size:12px; }
+  .field textarea { resize:vertical; min-height:68px; }
+  .coord-row { display:grid; grid-template-columns:1fr 1fr auto; align-items:end; gap:8px; }
+  .coord-row .btn { height:37px; white-space:nowrap; font-size:10px; padding:0 10px; }
+  .visited-extra { margin-top:17px; border-top:1px solid #f1e3e9; padding-top:16px; }
+  .section-label { font:600 16px Georgia,serif; margin:0 0 12px; display:flex; align-items:center; gap:7px; }
+  .rating-picker { display:flex; gap:4px; }
+  .rating-picker button { border:0; background:transparent; padding:1px; color:#e6d4dc; font-size:25px; line-height:1; }
+  .rating-picker button.on { color:#e5a24d; }
+  .photo-upload { border:1px dashed #e8b9ca; border-radius:13px; background:#fff7fa; padding:12px; }
+  .photo-upload input { display:none; }
+  .photo-upload label { display:flex; justify-content:center; align-items:center; gap:8px; min-height:30px; color:#a15d7c; cursor:pointer; font-size:11px; font-weight:700; }
+  .photo-grid { display:flex; gap:8px; flex-wrap:wrap; margin-top:10px; }
+  .photo-thumb { position:relative; width:70px; height:70px; border-radius:11px; overflow:hidden; border:1px solid #f0dbe4; }
+  .photo-thumb img { width:100%; height:100%; object-fit:cover; }
+  .photo-thumb button { position:absolute; top:3px; right:3px; width:20px; height:20px; border:0; border-radius:7px; background:#ffffffdf; color:#a14b6b; font-size:13px; line-height:1; }
+  .modal-actions { display:flex; justify-content:space-between; align-items:center; gap:10px; margin-top:20px; padding-top:14px; border-top:1px solid #f3e6eb; }
+  .modal-actions-right { display:flex; gap:8px; margin-left:auto; }
+  .modal-actions .btn { font-size:12px; }
+  .toast { position:fixed; z-index:200; bottom:22px; left:50%; transform:translate(-50%,20px); background:#4e3b46; color:#fff; border-radius:13px; padding:11px 16px; font-size:12px; box-shadow:0 8px 25px #3b243555; opacity:0; pointer-events:none; transition:.22s; max-width:calc(100% - 28px); text-align:center; }
+  .toast.show { opacity:1; transform:translate(-50%,0); }
+  .storage-note { background:#f8f1f4; color:#927c88; border-radius:11px; padding:10px 12px; font-size:10px; line-height:1.45; margin-top:14px; }
+  .map-loading { position:absolute; inset:0; display:grid; place-items:center; pointer-events:none; color:#9e8793; font-size:12px; }
+  @media (max-width:900px) {
+    .app-shell { padding:14px 14px 22px; }
+    .workspace { grid-template-columns:280px minmax(0,1fr); height:68vh; min-height:560px; }
+    .topbar { align-items:flex-start; }
+    .top-actions .btn .wide-label { display:none; }
+  }
+  @media (max-width:680px) {
+    .app-shell { padding:12px 10px 20px; }
+    .topbar { display:block; }
+    .brand { margin-bottom:12px; }
+    .top-actions { justify-content:flex-start; gap:6px; }
+    .top-actions .btn { padding:9px 11px; font-size:11px; }
+    .stats { gap:6px; margin-bottom:12px; }
+    .stat { padding:9px 8px; gap:7px; border-radius:14px; }
+    .stat-icon { width:29px; height:29px; border-radius:10px; font-size:14px; }
+    .stat strong { font-size:19px; }
+    .stat span:last-child { font-size:9px; }
+    .view-switch { align-items:flex-start; flex-direction:column; gap:6px; }
+    .view-hint { font-size:10px; }
+    .workspace { display:flex; flex-direction:column; height:auto; min-height:0; gap:10px; }
+    .map-panel { height:58vh; min-height:390px; order:0; }
+    .side-panel { height:auto; min-height:0; max-height:290px; order:1; }
+    .side-head { padding:13px 13px 10px; }
+    .side-head h2 { font-size:17px; }
+    .side-head p { margin-bottom:9px; }
+    .filters { padding:8px 12px; }
+    .side-list { max-height:140px; }
+    .board { grid-template-columns:1fr; gap:10px; }
+    .board-column { min-height:220px; padding:0 11px 11px; }
+    .drop-zone { min-height:100px; }
+    .place-card { grid-template-columns:88px minmax(0,1fr); gap:9px; padding:8px; }
+    .card-photo { width:88px; height:98px; }
+    .map-toolbar { top:10px; right:10px; }
+    .map-tool { width:36px; height:36px; }
+    .map-legend { bottom:12px; left:10px; padding:7px 9px; font-size:9px; gap:8px; }
+    .map-hint { top:10px; left:10px; font-size:10px; }
+    .modal-backdrop { padding:8px; align-items:flex-end; }
+    .modal { max-height:94vh; border-radius:22px 22px 15px 15px; }
+    .modal-head { padding:17px 17px 11px; }
+    .modal-content { padding:14px 17px 18px; }
+    .form-grid { grid-template-columns:1fr; gap:11px; }
+    .field.full { grid-column:auto; }
+    .coord-row { grid-template-columns:1fr 1fr; }
+    .coord-row .btn { grid-column:1/-1; }
+    .modal-actions { align-items:stretch; flex-wrap:wrap; }
+    .modal-actions .btn { flex:1; }
+    .modal-actions-right { flex:2; }
+  }
+  @media (max-width:380px) {
+    .brand h1 { font-size:23px; }
+    .top-actions .btn { padding:8px 9px; }
+    .stat { display:block; text-align:center; }
+    .stat-icon { margin:0 auto 4px; }
+  }
+</style>
+</head>
+<body>
+<div class="app-shell">
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-mark">♡</div>
+      <div><h1>Наши места</h1><p>маленькая карта наших больших воспоминаний · Москва</p></div>
+    </div>
+    <div class="top-actions">
+      <button class="btn primary" id="addPlaceBtn">＋ <span class="wide-label">Добавить место</span></button>
+      <button class="btn" id="exportBtn">↓ <span class="wide-label">Экспорт</span></button>
+      <button class="btn" id="importBtn">↑ <span class="wide-label">Импорт</span></button>
+      <input type="file" id="importFile" accept="application/json,.json" hidden />
+    </div>
+  </header>
+
+  <section class="stats" aria-label="Статистика приключений">
+    <div class="stat"><div class="stat-icon">♡</div><div><strong id="visitedCount">0</strong><span>мест мы посетили</span></div></div>
+    <div class="stat"><div class="stat-icon">✧</div><div><strong id="plannedCount">0</strong><span>мест ждут нас</span></div></div>
+    <div class="stat"><div class="stat-icon">⌖</div><div><strong id="totalCount">0</strong><span>мест в нашем каталоге</span></div></div>
+  </section>
+
+  <div class="view-switch">
+    <div class="view-tabs" role="tablist" aria-label="Режим просмотра">
+      <button class="view-tab active" id="mapTab" role="tab" aria-selected="true">⌖ Карта</button>
+      <button class="view-tab" id="cardsTab" role="tab" aria-selected="false">▦ Карточки</button>
+    </div>
+    <div class="view-hint" id="viewHint">Перемещайтесь по карте, приближайте любимые районы и открывайте наши метки.</div>
+  </div>
+
+  <main>
+    <section class="workspace" id="mapView">
+      <aside class="side-panel">
+        <div class="side-head">
+          <h2>Наш список</h2>
+          <p>Все маленькие поводы выбраться из дома</p>
+          <div class="searchbox"><span>⌕</span><input id="searchInput" type="search" placeholder="Найти место или адрес…" autocomplete="off" /></div>
+        </div>
+        <div class="filters" id="mapFilters">
+          <button class="filter-chip active" data-filter="all">Все</button>
+          <button class="filter-chip" data-filter="planned">В планах</button>
+          <button class="filter-chip" data-filter="visited">Посетили</button>
+        </div>
+        <div class="side-list" id="sideList"></div>
+      </aside>
+      <div class="map-panel">
+        <div id="map" aria-label="Интерактивная карта Москвы">
+          <div class="tile-layer" id="tileLayer"></div>
+          <div class="marker-layer" id="markerLayer"></div>
+          <div class="map-hint" id="mapHint">♡ Здесь появятся места, которые вы добавите</div>
+          <div class="map-empty" id="mapEmpty"><div class="big">🌷</div><strong>Всё начинается с первого места</strong><span>Добавьте любимое кафе, парк или музей — и он появится на нашей карте.</span></div>
+        </div>
+        <div class="map-toolbar">
+          <button class="map-tool" id="zoomIn" title="Приблизить">＋</button>
+          <button class="map-tool" id="zoomOut" title="Отдалить">−</button>
+          <button class="map-tool" id="fitMap" title="Показать все места">⌖</button>
+        </div>
+        <div class="map-legend"><span class="legend-item"><i class="legend-dot"></i> Хотим посетить</span><span class="legend-item"><i class="legend-dot green"></i> Уже были</span></div>
+        <div class="map-attribution">© <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors · <a href="https://www.openstreetmap.de/germanstyle.html" target="_blank" rel="noopener">OSM.de</a> / <a href="https://www.hotosm.org/" target="_blank" rel="noopener">HOT</a></div>
+      </div>
+    </section>
+
+    <section class="cards-view hidden" id="cardsView">
+      <div class="board">
+        <section class="board-column planned-col">
+          <div class="column-head"><div class="column-title"><span class="emoji">✧</span><div><h2>Хочу посетить</h2><div style="font-size:10px;color:var(--muted);margin-top:3px">Наши будущие истории</div></div></div><span class="count-pill" id="plannedBoardCount">0</span></div>
+          <div class="drop-zone" id="plannedZone" data-drop-zone="planned"></div>
+        </section>
+        <section class="board-column visited-col">
+          <div class="column-head"><div class="column-title"><span class="emoji">♡</span><div><h2>Посетили</h2><div style="font-size:10px;color:var(--muted);margin-top:3px">Моменты, которые уже с нами</div></div></div><span class="count-pill" id="visitedBoardCount">0</span></div>
+          <div class="drop-zone" id="visitedZone" data-drop-zone="visited"></div>
+        </section>
+      </div>
+      <div class="footer-note">Потяните за значок ⠿, чтобы менять порядок и переносить места между списками.</div>
+    </section>
+  </main>
+  <div class="footer-note">Сохраняется в этом браузере · фотографии остаются на вашем устройстве · <a href="https://www.openstreetmap.org/fixthemap" target="_blank" rel="noopener">сообщить об ошибке на карте</a></div>
+</div>
+
+<div class="modal-backdrop hidden" id="placeModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+  <div class="modal">
+    <div class="modal-head">
+      <div><h2 id="modalTitle">Добавить наше место</h2><p>Пусть у нас будет ещё один повод куда-нибудь выбраться ♡</p></div>
+      <button class="close-btn" id="closeModal" aria-label="Закрыть">×</button>
+    </div>
+    <div class="modal-content">
+      <form id="placeForm">
+        <input type="hidden" id="placeId" />
+        <div class="form-grid">
+          <div class="field full"><label for="placeName">Название места *</label><input id="placeName" required maxlength="100" placeholder="Например, уютная кофейня на Патриарших" /></div>
+          <div class="field full"><label for="placeAddress">Адрес</label><input id="placeAddress" maxlength="180" placeholder="Улица, дом, район" /></div>
+          <div class="field"><label for="placeCategory">Категория</label><select id="placeCategory">
+            <option>Кафе</option><option>Ресторан</option><option>Кофейня</option><option>Парк</option><option>Музей</option><option>Выставка</option><option>Архитектура</option><option>Прогулка</option><option>Развлечения</option><option>Магазин</option><option>Другое</option>
+          </select></div>
+          <div class="field"><label for="placeStatus">Наш статус</label><select id="placeStatus"><option value="planned">Хочу посетить</option><option value="visited">Посетили</option></select></div>
+          <div class="field full"><label for="placeComment">Комментарий <span class="optional">· необязательно</span></label><textarea id="placeComment" maxlength="800" placeholder="Почему захотелось сюда попасть? Кто посоветовал? Что обязательно попробовать? "></textarea></div>
+          <div class="field full">
+            <label>Координаты <span class="optional">· нужны для метки на карте</span></label>
+            <div class="coord-row">
+              <div class="field"><input id="placeLat" inputmode="decimal" placeholder="Широта · 55.75" aria-label="Широта" /></div>
+              <div class="field"><input id="placeLon" inputmode="decimal" placeholder="Долгота · 37.61" aria-label="Долгота" /></div>
+              <button type="button" class="btn soft" id="pickOnMap">⌖ Указать на карте</button>
+            </div>
+          </div>
+        </div>
+        <div class="visited-extra hidden" id="visitedFields">
+          <h3 class="section-label">♡ Наши впечатления</h3>
+          <div class="form-grid">
+            <div class="field"><label for="visitDate">Дата посещения</label><input id="visitDate" type="date" /></div>
+            <div class="field"><label>Наша оценка</label><div class="rating-picker" id="ratingPicker" aria-label="Оценка от 1 до 5 звёзд">
+              <button type="button" data-star="1" aria-label="1 звезда">★</button><button type="button" data-star="2" aria-label="2 звезды">★</button><button type="button" data-star="3" aria-label="3 звезды">★</button><button type="button" data-star="4" aria-label="4 звезды">★</button><button type="button" data-star="5" aria-label="5 звёзд">★</button>
+            </div></div>
+            <div class="field full"><label for="impressions">Впечатления</label><textarea id="impressions" maxlength="1500" placeholder="Что запомнилось? Как провели время? Вернулись бы ещё? "></textarea></div>
+            <div class="field full"><label>Фотографии</label><div class="photo-upload"><input type="file" id="photoInput" accept="image/*" multiple /><label for="photoInput">＋ Добавить фотографии с нашего приключения</label><div class="photo-grid" id="photoGrid"></div></div></div>
+          </div>
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn danger hidden" id="deletePlaceBtn">Удалить место</button>
+          <div class="modal-actions-right"><button type="button" class="btn" id="cancelModal">Отмена</button><button type="submit" class="btn primary">Сохранить ♡</button></div>
+        </div>
+      </form>
+      <div class="storage-note">Данные и фотографии хранятся локально в IndexedDB вашего браузера. Они не синхронизируются между устройствами — для переноса используйте экспорт резервной копии.</div>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(() => {
+  'use strict';
+  const $ = (selector, root=document) => root.querySelector(selector);
+  const $$ = (selector, root=document) => [...root.querySelectorAll(selector)];
+  const DB_NAME = 'our-moscow-places-db';
+  const DB_VERSION = 1;
+  // The official tile.openstreetmap.org endpoint rejects file:// pages because they cannot send an HTTP Referer.
+  // OSM.de accepts requests without Referer; HOT is a secondary fallback.
+  const TILE_URL = 'https://tile.openstreetmap.de/{z}/{x}/{y}.png';
+  const TILE_FALLBACK_URL = 'https://a.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png';
+  const MOSCOW = { lat: 55.751244, lon: 37.618423 };
+  const TILE_SIZE = 256;
+  const categoryEmoji = {
+    'Кафе':'☕','Ресторан':'🍽️','Кофейня':'☕','Парк':'🌳','Музей':'🏛️','Выставка':'🖼️',
+    'Архитектура':'🏛️','Прогулка':'🌷','Развлечения':'🎡','Магазин':'🛍️','Другое':'♡'
+  };
+
+  let db = null;
+  let places = [];
+  let activeView = 'map';
+  let activeFilter = 'all';
+  let searchQuery = '';
+  let draftPhotos = [];
+  let currentRating = 0;
+  let mapCenter = { ...MOSCOW };
+  let mapZoom = 11;
+  let mapRenderQueued = false;
+  let selectedPlaceId = null;
+  let pickingCoordinates = false;
+  let coordinateDraft = null;
+  let panState = null;
+  let dragState = null;
+  let toastTimer = null;
+
+  function openDB() {
+    return new Promise((resolve, reject) => {
+      if (!('indexedDB' in window)) return reject(new Error('IndexedDB недоступна'));
+      const request = indexedDB.open(DB_NAME, DB_VERSION);
+      request.onupgradeneeded = () => {
+        const database = request.result;
+        if (!database.objectStoreNames.contains('data')) database.createObjectStore('data', { keyPath: 'key' });
+      };
+      request.onsuccess = () => resolve(request.result);
+      request.onerror = () => reject(request.error || new Error('Не удалось открыть хранилище'));
+    });
+  }
+  function idbGet(key) {
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction('data', 'readonly');
+      const req = tx.objectStore('data').get(key);
+      req.onsuccess = () => resolve(req.result ? req.result.value : undefined);
+      req.onerror = () => reject(req.error);
+    });
+  }
+  function idbSet(key, value) {
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction('data', 'readwrite');
+      tx.objectStore('data').put({ key, value });
+      tx.oncomplete = () => resolve();
+      tx.onerror = () => reject(tx.error || new Error('Ошибка сохранения'));
+      tx.onabort = () => reject(tx.error || new Error('Сохранение отменено'));
+    });
+  }
+  async function persist() {
+    try {
+      if (db) await idbSet('places', places);
+      else localStorage.setItem('our-moscow-places-fallback', JSON.stringify(places));
+      renderAll();
+    } catch (error) {
+      console.error(error);
+      renderAll();
+      showToast('Не удалось записать изменения в хранилище. Данные пока видны в этой вкладке — сделайте экспорт резервной копии.');
+    }
+  }
+  async function initStorage() {
+    try {
+      db = await openDB();
+      const saved = await idbGet('places');
+      places = Array.isArray(saved) ? saved : [];
+      if (saved === undefined) await idbSet('places', places);
+    } catch (error) {
+      console.warn('IndexedDB unavailable, using localStorage fallback', error);
+      try { places = JSON.parse(localStorage.getItem('our-moscow-places-fallback') || '[]'); }
+      catch (_) { places = []; }
+      showToast('Браузер не открыл IndexedDB. Включено запасное хранилище; для фото лучше использовать обычный режим браузера.');
+    }
+    renderAll();
+  }
+  function showToast(message) {
+    const el = $('#toast'); el.textContent = message; el.classList.add('show');
+    clearTimeout(toastTimer); toastTimer = setTimeout(() => el.classList.remove('show'), 3100);
+  }
+  function escapeHTML(value='') {
+    return String(value).replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
+  }
+  function safeNumber(value) {
+    const n = Number(String(value).trim().replace(',', '.'));
+    return Number.isFinite(n) ? n : null;
+  }
+  function sorted(status) {
+    return places.filter(p => p.status === status).sort((a,b) => (a.order ?? 0) - (b.order ?? 0) || (a.createdAt||0)-(b.createdAt||0));
+  }
+  function filteredPlaces() {
+    const q = searchQuery.trim().toLocaleLowerCase('ru');
+    return places.filter(p => {
+      const statusOK = activeFilter === 'all' || p.status === activeFilter;
+      const text = [p.name,p.address,p.category,p.comment,p.impressions].filter(Boolean).join(' ').toLocaleLowerCase('ru');
+      return statusOK && (!q || text.includes(q));
+    }).sort((a,b) => (a.status === b.status ? (a.order??0)-(b.order??0) : a.status === 'planned' ? -1 : 1));
+  }
+  function renderStats() {
+    const visited = places.filter(p => p.status === 'visited').length;
+    const planned = places.length - visited;
+    $('#visitedCount').textContent = visited;
+    $('#plannedCount').textContent = planned;
+    $('#totalCount').textContent = places.length;
+    $('#plannedBoardCount').textContent = planned;
+    $('#visitedBoardCount').textContent = visited;
+  }
+  function renderSideList() {
+    const list = $('#sideList');
+    const items = filteredPlaces();
+    if (!items.length) {
+      list.innerHTML = `<div class="empty-state"><div class="empty-icon">${searchQuery ? '⌕' : '🌸'}</div><strong>${searchQuery ? 'Ничего не нашлось' : 'Пока здесь пусто'}</strong><p>${searchQuery ? 'Попробуйте другое название или адрес.' : 'Добавьте место — и оно появится в этом списке и на карте.'}</p>${!searchQuery ? '<button class="btn soft" data-action="add">＋ Добавить место</button>' : ''}</div>`;
+      return;
+    }
+    list.innerHTML = items.map(p => {
+      const photo = p.photos && p.photos[0] ? `<img src="${p.photos[0].data}" alt="" />` : escapeHTML(categoryEmoji[p.category] || '♡');
+      return `<div class="side-item" data-open="${escapeHTML(p.id)}"><div class="side-thumb">${photo}</div><div class="side-item-main"><strong>${escapeHTML(p.name)}</strong><span>${escapeHTML(p.category || 'Другое')} · ${escapeHTML(p.address || 'Адрес не указан')}</span></div><i class="status-dot ${p.status==='visited'?'visited':''}"></i></div>`;
+    }).join('');
+  }
+  function photoCover(p) {
+    if (p.photos && p.photos[0] && p.photos[0].data) return `<img src="${p.photos[0].data}" alt="Фотография места" />`;
+    return escapeHTML(categoryEmoji[p.category] || '♡');
+  }
+  function renderCard(p) {
+    const stars = p.status === 'visited' && p.rating ? `<span class="stars">${'★'.repeat(p.rating)}${'☆'.repeat(5-p.rating)}</span>` : `<span class="stars" style="color:#b69aa7">${p.status==='visited' && p.visitDate ? escapeHTML(formatDate(p.visitDate)) : '♡'}</span>`;
+    const buttonText = p.status === 'planned' ? '♡ Уже посетили' : '↶ Вернуть в планы';
+    return `<article class="place-card" data-card-id="${escapeHTML(p.id)}">
+      <div class="card-photo">${photoCover(p)}</div>
+      <div class="card-body">
+        <div class="card-topline"><span class="category-tag">${escapeHTML(p.category || 'Другое')}</span><button class="drag-handle" type="button" title="Перетащить" aria-label="Перетащить карточку">⠿</button></div>
+        <h3>${escapeHTML(p.name)}</h3>
+        <div class="card-address">${escapeHTML(p.address || 'Адрес не указан')}</div>
+        ${p.comment ? `<p class="card-comment">${escapeHTML(p.comment)}</p>` : ''}
+        <div class="card-bottom">${stars}<button class="tiny-action" data-status-toggle="${escapeHTML(p.id)}">${buttonText}</button></div>
+      </div>
+    </article>`;
+  }
+  function renderBoard() {
+    for (const status of ['planned','visited']) {
+      const zone = status === 'planned' ? $('#plannedZone') : $('#visitedZone');
+      const data = sorted(status);
+      zone.innerHTML = data.length ? data.map(renderCard).join('') : `<div class="empty-state"><div class="empty-icon">${status==='planned'?'✧':'♡'}</div><strong>${status==='planned'?'Добавим что-нибудь в планы?':'Первые воспоминания ждут'}</strong><p>${status==='planned'?'Сохраняйте интересные места, чтобы не потерять идею.':'После прогулки перенесите место сюда и добавьте фото и впечатления.'}</p><button class="btn soft" data-action="add">＋ Добавить место</button></div>`;
+    }
+  }
+  function renderAll() {
+    renderStats(); renderSideList(); renderBoard(); renderMap();
+  }
+  function formatDate(date) {
+    if (!date) return '';
+    const d = new Date(date + 'T00:00:00');
+    return Number.isNaN(d.getTime()) ? date : d.toLocaleDateString('ru-RU', {day:'numeric',month:'short',year:'numeric'});
+  }
+
+  // A small dependency-free slippy map using OSM-derived raster tile endpoints.
+  function project(lat, lon, zoom) {
+    const scale = TILE_SIZE * Math.pow(2, zoom);
+    const sin = Math.sin(Math.max(-85.0511, Math.min(85.0511, lat)) * Math.PI / 180);
+    return { x:(lon + 180) / 360 * scale, y:(0.5 - Math.log((1 + sin) / (1 - sin)) / (4 * Math.PI)) * scale };
+  }
+  function unproject(x, y, zoom) {
+    const scale = TILE_SIZE * Math.pow(2, zoom);
+    const lon = x / scale * 360 - 180;
+    const n = Math.PI - 2 * Math.PI * y / scale;
+    const lat = 180 / Math.PI * Math.atan(Math.sinh(n));
+    return { lat, lon };
+  }
+  function requestMapRender() {
+    if (mapRenderQueued) return;
+    mapRenderQueued = true;
+    requestAnimationFrame(() => { mapRenderQueued = false; renderMap(); });
+  }
+  function renderMap() {
+    const map = $('#map'); if (!map) return;
+    const w = map.clientWidth, h = map.clientHeight;
+    if (!w || !h) return;
+    const z = Math.max(3, Math.min(19, Math.round(mapZoom)));
+    const center = project(mapCenter.lat, mapCenter.lon, z);
+    const left = center.x - w/2, top = center.y - h/2;
+    const minX = Math.floor(left/TILE_SIZE), maxX = Math.floor((left+w)/TILE_SIZE);
+    const minY = Math.floor(top/TILE_SIZE), maxY = Math.floor((top+h)/TILE_SIZE);
+    const n = Math.pow(2,z);
+    let tileHtml = '';
+    for (let ty=minY; ty<=maxY; ty++) {
+      if (ty<0 || ty>=n) continue;
+      for (let tx=minX; tx<=maxX; tx++) {
+        const wrappedX = ((tx % n) + n) % n;
+        const x = tx*TILE_SIZE-left, y = ty*TILE_SIZE-top;
+        const tilePath = template => template.replace('{z}',z).replace('{x}',wrappedX).replace('{y}',ty);
+        tileHtml += `<img class="tile" draggable="false" alt="" referrerpolicy="no-referrer" data-fallback="${tilePath(TILE_FALLBACK_URL)}" src="${tilePath(TILE_URL)}" style="left:${x}px;top:${y}px" />`;
+      }
+    }
+    $('#tileLayer').innerHTML = tileHtml;
+    // If the primary OSM-derived tile host is temporarily unavailable, retry this tile
+    // on the HOT raster layer. No prefetching: only tiles currently in view are requested.
+    $$('.tile', $('#tileLayer')).forEach(img => {
+      img.addEventListener('error', () => {
+        const fallback = img.dataset.fallback;
+        if (fallback && !img.dataset.fallbackTried) {
+          img.dataset.fallbackTried = '1';
+          img.src = fallback;
+        } else {
+          img.classList.add('tile-error');
+        }
+      });
+    });
+    const visible = filteredPlaces().filter(p => safeNumber(p.lat) !== null && safeNumber(p.lon) !== null);
+    $('#mapEmpty').classList.toggle('hidden', places.length > 0);
+    const hint = $('#mapHint');
+    hint.textContent = pickingCoordinates ? 'Нажмите на карту в нужной точке — координаты подставятся в форму' : (places.length ? 'Нажмите на метку, чтобы открыть место ♡' : '♡ Здесь появятся места, которые вы добавите');
+    hint.classList.toggle('pick', pickingCoordinates);
+    $('#markerLayer').innerHTML = visible.map(p => {
+      const pt = project(Number(p.lat), Number(p.lon), z);
+      const x = pt.x-left, y = pt.y-top;
+      const emoji = categoryEmoji[p.category] || '♡';
+      return `<button class="map-marker ${p.status==='visited'?'visited':''} ${selectedPlaceId===p.id?'selected':''}" data-marker="${escapeHTML(p.id)}" title="${escapeHTML(p.name)}" style="left:${x}px;top:${y}px"><span class="pin"><span>${emoji}</span></span></button>`;
+    }).join('');
+  }
+  function setMapCenter(lat, lon, zoom=mapZoom) {
+    mapCenter = {lat,lon}; mapZoom = Math.max(3,Math.min(19,zoom)); requestMapRender();
+  }
+  function fitAllPlaces() {
+    const valid = places.filter(p => safeNumber(p.lat)!==null && safeNumber(p.lon)!==null);
+    if (!valid.length) { setMapCenter(MOSCOW.lat,MOSCOW.lon,11); return; }
+    if (valid.length===1) { setMapCenter(Number(valid[0].lat),Number(valid[0].lon),15); return; }
+    const lats=valid.map(p=>Number(p.lat)), lons=valid.map(p=>Number(p.lon));
+    const minLat=Math.min(...lats), maxLat=Math.max(...lats), minLon=Math.min(...lons), maxLon=Math.max(...lons);
+    const lat=maxLat-(maxLat-minLat)/2, lon=maxLon-(maxLon-minLon)/2;
+    const width=$('#map').clientWidth||800, height=$('#map').clientHeight||600;
+    let zoom=15;
+    for (let z=19;z>=3;z--) {
+      const a=project(maxLat,minLon,z), b=project(minLat,maxLon,z);
+      if (Math.abs(b.x-a.x)<width*.72 && Math.abs(b.y-a.y)<height*.72) { zoom=z; break; }
+    }
+    setMapCenter(lat,lon,Math.min(16,zoom));
+  }
+  function openEditor(id=null, coords=null) {
+    const p = id ? places.find(x=>x.id===id) : null;
+    draftPhotos = p && Array.isArray(p.photos) ? p.photos.map(x=>({...x})) : [];
+    currentRating = p?.rating || 0;
+    $('#placeId').value = p?.id || '';
+    $('#placeName').value = p?.name || '';
+    $('#placeAddress').value = p?.address || '';
+    $('#placeCategory').value = p?.category || 'Кафе';
+    $('#placeStatus').value = p?.status || 'planned';
+    $('#placeComment').value = p?.comment || '';
+    $('#placeLat').value = coords ? coords.lat.toFixed(6) : (p?.lat ?? '');
+    $('#placeLon').value = coords ? coords.lon.toFixed(6) : (p?.lon ?? '');
+    $('#visitDate').value = p?.visitDate || '';
+    $('#impressions').value = p?.impressions || '';
+    $('#deletePlaceBtn').classList.toggle('hidden',!p);
+    $('#modalTitle').textContent = p ? 'Наше место' : 'Добавить наше место';
+    $('#visitedFields').classList.toggle('hidden',$('#placeStatus').value!=='visited');
+    renderRating(); renderPhotoGrid();
+    $('#placeModal').classList.remove('hidden');
+    setTimeout(()=>$('#placeName').focus(),60);
+  }
+  function closeEditor() { $('#placeModal').classList.add('hidden'); }
+  function renderRating() {
+    $$('#ratingPicker button').forEach(b => b.classList.toggle('on',Number(b.dataset.star)<=currentRating));
+  }
+  function renderPhotoGrid() {
+    $('#photoGrid').innerHTML = draftPhotos.map((p,i)=>`<div class="photo-thumb"><img src="${p.data}" alt="Фотография ${i+1}" /><button type="button" data-remove-photo="${i}" aria-label="Удалить фотографию">×</button></div>`).join('');
+  }
+  async function fileToCompressedData(file) {
+    if (!file.type.startsWith('image/')) throw new Error('Это не изображение');
+    if (file.size > 25*1024*1024) throw new Error('Файл больше 25 МБ');
+    try {
+      const bitmap = await createImageBitmap(file);
+      const max = 1600, ratio = Math.min(1,max/Math.max(bitmap.width,bitmap.height));
+      const canvas = document.createElement('canvas');
+      canvas.width = Math.max(1,Math.round(bitmap.width*ratio)); canvas.height = Math.max(1,Math.round(bitmap.height*ratio));
+      const ctx = canvas.getContext('2d'); ctx.drawImage(bitmap,0,0,canvas.width,canvas.height); bitmap.close?.();
+      return await new Promise(resolve=>canvas.toBlob(blob=>{
+        if (!blob) return resolve(null);
+        const reader = new FileReader(); reader.onload=()=>resolve(reader.result); reader.readAsDataURL(blob);
+      },'image/jpeg',.82));
+    } catch (err) {
+      return await new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(reader.result);reader.onerror=()=>reject(err);reader.readAsDataURL(file);});
+    }
+  }
+  async function handlePhotoFiles(files) {
+    const selected=[...files].slice(0,12-draftPhotos.length);
+    for (const file of selected) {
+      try {
+        const data=await fileToCompressedData(file);
+        if (data) draftPhotos.push({name:file.name||'photo.jpg',data});
+      } catch (e) { showToast(e.message || 'Не удалось добавить фото'); }
+    }
+    renderPhotoGrid(); $('#photoInput').value='';
+    if (draftPhotos.length) showToast('Фотографии добавлены ♡');
+  }
+  function normaliseOrders() {
+    for (const status of ['planned','visited']) sorted(status).forEach((p,i)=>p.order=i);
+  }
+  async function savePlace(event) {
+    event.preventDefault();
+    const name=$('#placeName').value.trim();
+    if (!name) return showToast('Добавьте название места.');
+    const latRaw=$('#placeLat').value.trim(), lonRaw=$('#placeLon').value.trim();
+    const lat=latRaw===''?null:safeNumber(latRaw), lon=lonRaw===''?null:safeNumber(lonRaw);
+    if (latRaw==='' || lonRaw==='') return showToast('Укажите координаты кнопкой «Указать на карте».');
+    if ((latRaw!=='' && (lat===null || lat < -85.0511 || lat > 85.0511)) || (lonRaw!=='' && (lon===null || lon < -180 || lon > 180))) return showToast('Проверьте координаты: широта от −85 до 85, долгота от −180 до 180.');
+    if ((lat===null)!==(lon===null)) return showToast('Для метки нужны обе координаты — широта и долгота.');
+    const id=$('#placeId').value || `place-${Date.now()}-${Math.random().toString(36).slice(2,8)}`;
+    const old=places.find(p=>p.id===id);
+    const status=$('#placeStatus').value;
+    const place={
+      id, name, address:$('#placeAddress').value.trim(), category:$('#placeCategory').value,
+      status, comment:$('#placeComment').value.trim(), lat, lon,
+      visitDate:status==='visited'?$('#visitDate').value:'',
+      impressions:status==='visited'?$('#impressions').value.trim():(old?.impressions||''),
+      rating:status==='visited'?currentRating:(old?.rating||0),
+      photos:status==='visited'?draftPhotos:(old?.photos||[]),
+      createdAt:old?.createdAt || Date.now(), updatedAt:Date.now(), order:old?.order ?? places.filter(p=>p.status===status).length
+    };
+    if (old) {
+      const oldStatus=old.status;
+      places=places.map(p=>p.id===id?place:p);
+      if (oldStatus!==status) place.order=places.filter(p=>p.status===status && p.id!==id).length;
+    } else places.push(place);
+    normaliseOrders(); await persist(); closeEditor(); showToast(old?'Изменения сохранены ♡':'Место добавлено на нашу карту ♡');
+  }
+  async function deletePlace() {
+    const id=$('#placeId').value; const p=places.find(x=>x.id===id);
+    if (!p || !confirm(`Удалить «${p.name}» из вашего путеводителя?`)) return;
+    places=places.filter(x=>x.id!==id); normaliseOrders(); await persist(); closeEditor(); showToast('Место удалено.');
+  }
+  async function toggleStatus(id) {
+    const p=places.find(x=>x.id===id); if (!p) return;
+    const target=p.status==='planned'?'visited':'planned';
+    p.status=target; p.order=places.filter(x=>x.status===target && x.id!==id).length; p.updatedAt=Date.now();
+    normaliseOrders(); await persist(); showToast(target==='visited'?'Ура, ещё одно место в наших воспоминаниях ♡':'Место вернулось в планы.');
+  }
+  async function movePlace(id,targetStatus,targetIndex) {
+    const item=places.find(p=>p.id===id); if (!item) return;
+    const sourceStatus=item.status;
+    const source=sorted(sourceStatus).filter(p=>p.id!==id);
+    const target=sourceStatus===targetStatus?source:sorted(targetStatus);
+    const index=Math.max(0,Math.min(target.length,targetIndex));
+    item.status=targetStatus;
+    target.splice(index,0,item);
+    target.forEach((p,i)=>p.order=i);
+    if (sourceStatus!==targetStatus) source.forEach((p,i)=>p.order=i);
+    await persist();
+  }
+
+  // Pointer-based drag & drop works with both mouse and touch screens.
+  function onDragStartPointer(e) {
+    const handle=e.target.closest('.drag-handle'); if (!handle) return;
+    const card=handle.closest('[data-card-id]'); if (!card) return;
+    e.preventDefault(); e.stopPropagation();
+    dragState={id:card.dataset.cardId, pointerId:e.pointerId, startX:e.clientX, startY:e.clientY, started:false, targetStatus:null, targetIndex:null, card, handle};
+    handle.setPointerCapture?.(e.pointerId);
+  }
+  function onDragMovePointer(e) {
+    if (!dragState || e.pointerId!==dragState.pointerId) return;
+    const dx=e.clientX-dragState.startX, dy=e.clientY-dragState.startY;
+    if (!dragState.started && Math.hypot(dx,dy)>6) {
+      dragState.started=true; dragState.card.classList.add('dragging'); document.body.classList.add('is-dragging');
+    }
+    if (!dragState.started) return;
+    e.preventDefault();
+    $$('.drop-zone').forEach(z=>z.classList.remove('drag-over'));
+    const under=document.elementFromPoint(e.clientX,e.clientY);
+    const zone=under?.closest('[data-drop-zone]');
+    if (!zone) { dragState.targetStatus=null; dragState.targetIndex=null; return; }
+    zone.classList.add('drag-over');
+    const cards=$$('[data-card-id]',zone).filter(c=>c.dataset.cardId!==dragState.id);
+    let index=cards.length;
+    for (let i=0;i<cards.length;i++) {
+      const r=cards[i].getBoundingClientRect();
+      if (e.clientY<r.top+r.height/2) { index=i; break; }
+    }
+    dragState.targetStatus=zone.dataset.dropZone; dragState.targetIndex=index;
+  }
+  async function onDragEndPointer(e) {
+    if (!dragState || e.pointerId!==dragState.pointerId) return;
+    const d=dragState; dragState=null;
+    d.card.classList.remove('dragging'); document.body.classList.remove('is-dragging'); $$('.drop-zone').forEach(z=>z.classList.remove('drag-over'));
+    if (d.started && d.targetStatus) await movePlace(d.id,d.targetStatus,d.targetIndex);
+  }
+
+  function switchView(view) {
+    activeView=view;
+    $('#mapView').classList.toggle('hidden',view!=='map');
+    $('#cardsView').classList.toggle('hidden',view!=='cards');
+    $('#mapTab').classList.toggle('active',view==='map'); $('#cardsTab').classList.toggle('active',view==='cards');
+    $('#mapTab').setAttribute('aria-selected',String(view==='map')); $('#cardsTab').setAttribute('aria-selected',String(view==='cards'));
+    $('#viewHint').textContent=view==='map'?'Перемещайтесь по карте, приближайте любимые районы и открывайте наши метки.':'Перетаскивайте карточки между списками и создавайте свой порядок.';
+    if (view==='map') setTimeout(renderMap,30);
+  }
+  function startCoordinatePick() {
+    coordinateDraft={
+      id:$('#placeId').value || null, name:$('#placeName').value, address:$('#placeAddress').value,
+      category:$('#placeCategory').value, status:$('#placeStatus').value, comment:$('#placeComment').value,
+      visitDate:$('#visitDate').value, impressions:$('#impressions').value, photos:draftPhotos.map(x=>({...x})), rating:currentRating
+    };
+    closeEditor(); pickingCoordinates=true; switchView('map'); renderMap();
+    showToast('Нажмите на карту в точке, где находится место.');
+  }
+  function pickMapPoint(e) {
+    if (!pickingCoordinates) return;
+    if (e.target.closest('.map-marker') || e.target.closest('.map-toolbar') || e.target.closest('.map-attribution')) return;
+    const rect=$('#map').getBoundingClientRect();
+    const center=project(mapCenter.lat,mapCenter.lon,mapZoom);
+    const pt=unproject(center.x+(e.clientX-rect.left-rect.width/2),center.y+(e.clientY-rect.top-rect.height/2),mapZoom);
+    const draft=coordinateDraft || {}; coordinateDraft=null;
+    pickingCoordinates=false; renderMap();
+    openEditor(draft.id || null,{lat:pt.lat,lon:pt.lon});
+    $('#placeName').value=draft.name||''; $('#placeAddress').value=draft.address||''; $('#placeCategory').value=draft.category||'Кафе'; $('#placeStatus').value=draft.status||'planned'; $('#placeComment').value=draft.comment||'';
+    $('#visitDate').value=draft.visitDate||''; $('#impressions').value=draft.impressions||'';
+    if (Array.isArray(draft.photos)) draftPhotos=draft.photos.map(x=>({...x}));
+    currentRating=draft.rating||0; renderRating(); renderPhotoGrid();
+    $('#visitedFields').classList.toggle('hidden',$('#placeStatus').value!=='visited');
+    showToast('Координаты добавлены в форму ♡');
+  }
+
+  function exportBackup() {
+    const backup={app:'Наши места · Москва',format:'our-moscow-places',version:1,exportedAt:new Date().toISOString(),places};
+    const blob=new Blob([JSON.stringify(backup,null,2)],{type:'application/json'});
+    const url=URL.createObjectURL(blob); const a=document.createElement('a');
+    a.href=url; a.download=`nashi-mesta-backup-${new Date().toISOString().slice(0,10)}.json`; document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(()=>URL.revokeObjectURL(url),1500); showToast('Резервная копия подготовлена ♡');
+  }
+  async function importBackup(file) {
+    if (!file) return;
+    try {
+      const text=await file.text(); const data=JSON.parse(text);
+      const imported=Array.isArray(data)?data:data.places;
+      if (!Array.isArray(imported)) throw new Error('В файле не найден список мест.');
+      const valid=imported.every(p=>p && typeof p==='object' && typeof p.name==='string' && typeof p.id==='string' && ['planned','visited'].includes(p.status));
+      if (!valid) throw new Error('Файл не похож на резервную копию этого приложения.');
+      if (!confirm(`Заменить текущие ${places.length} мест на ${imported.length} мест из резервной копии? Текущие данные будут перезаписаны.`)) return;
+      places=imported.map(p=>({...p,photos:Array.isArray(p.photos)?p.photos:[]})); normaliseOrders(); await persist(); showToast('Резервная копия восстановлена ♡');
+    } catch (e) { showToast(e.message || 'Не удалось прочитать резервную копию.'); }
+    finally { $('#importFile').value=''; }
+  }
+
+  // UI events
+  $('#mapTab').addEventListener('click',()=>switchView('map'));
+  $('#cardsTab').addEventListener('click',()=>switchView('cards'));
+  $('#addPlaceBtn').addEventListener('click',()=>openEditor());
+  $('#exportBtn').addEventListener('click',exportBackup);
+  $('#importBtn').addEventListener('click',()=>$('#importFile').click());
+  $('#importFile').addEventListener('change',e=>importBackup(e.target.files?.[0]));
+  $('#closeModal').addEventListener('click',closeEditor); $('#cancelModal').addEventListener('click',closeEditor);
+  $('#placeModal').addEventListener('click',e=>{if(e.target===$('#placeModal'))closeEditor();});
+  $('#placeForm').addEventListener('submit',savePlace);
+  $('#deletePlaceBtn').addEventListener('click',deletePlace);
+  $('#placeStatus').addEventListener('change',()=>$('#visitedFields').classList.toggle('hidden',$('#placeStatus').value!=='visited'));
+  $('#ratingPicker').addEventListener('click',e=>{const b=e.target.closest('[data-star]');if(!b)return;currentRating=Number(b.dataset.star);renderRating();});
+  $('#photoInput').addEventListener('change',e=>handlePhotoFiles(e.target.files));
+  $('#photoGrid').addEventListener('click',e=>{const b=e.target.closest('[data-remove-photo]');if(!b)return;draftPhotos.splice(Number(b.dataset.removePhoto),1);renderPhotoGrid();});
+  $('#pickOnMap').addEventListener('click',startCoordinatePick);
+  $('#searchInput').addEventListener('input',e=>{searchQuery=e.target.value;renderSideList();renderMap();});
+  $('#mapFilters').addEventListener('click',e=>{const b=e.target.closest('[data-filter]');if(!b)return;activeFilter=b.dataset.filter;$$('.filter-chip').forEach(x=>x.classList.toggle('active',x===b));renderSideList();renderMap();});
+  $('#sideList').addEventListener('click',e=>{const add=e.target.closest('[data-action="add"]');if(add)return openEditor();const item=e.target.closest('[data-open]');if(!item)return;const p=places.find(x=>x.id===item.dataset.open);if(p){selectedPlaceId=p.id;if(p.lat!=null&&p.lon!=null)setMapCenter(Number(p.lat),Number(p.lon),15);openEditor(p.id);}});
+  $('#plannedZone').addEventListener('click',handleCardClick); $('#visitedZone').addEventListener('click',handleCardClick);
+  function handleCardClick(e) {
+    const add=e.target.closest('[data-action="add"]');if(add)return openEditor();
+    const toggle=e.target.closest('[data-status-toggle]');if(toggle){e.stopPropagation();toggleStatus(toggle.dataset.statusToggle);return;}
+    if(e.target.closest('.drag-handle'))return;
+    const card=e.target.closest('[data-card-id]');if(card)openEditor(card.dataset.cardId);
+  }
+  $('#markerLayer').addEventListener('click',e=>{const m=e.target.closest('[data-marker]');if(!m)return;const p=places.find(x=>x.id===m.dataset.marker);if(p){selectedPlaceId=p.id;renderMap();openEditor(p.id);}});
+  $('#zoomIn').addEventListener('click',()=>{mapZoom=Math.min(19,mapZoom+1);renderMap();});
+  $('#zoomOut').addEventListener('click',()=>{mapZoom=Math.max(3,mapZoom-1);renderMap();});
+  $('#fitMap').addEventListener('click',fitAllPlaces);
+  $('#map').addEventListener('click',pickMapPoint);
+  $('#map').addEventListener('pointerdown',e=>{
+    if(pickingCoordinates || e.target.closest('.map-marker') || e.target.closest('.map-toolbar') || e.target.closest('.map-attribution'))return;
+    panState={x:e.clientX,y:e.clientY,center:project(mapCenter.lat,mapCenter.lon,mapZoom),moved:false,pointerId:e.pointerId};
+    $('#map').setPointerCapture?.(e.pointerId);
+  });
+  $('#map').addEventListener('pointermove',e=>{
+    if(!panState||e.pointerId!==panState.pointerId)return;
+    const dx=e.clientX-panState.x,dy=e.clientY-panState.y;
+    if(Math.abs(dx)+Math.abs(dy)>4)panState.moved=true;
+    if(panState.moved){$('#map').classList.add('panning');mapCenter=unproject(panState.center.x-dx,panState.center.y-dy,mapZoom);requestMapRender();}
+  });
+  function endPan(e){if(!panState||e.pointerId!==panState.pointerId)return;const moved=panState.moved;panState=null;$('#map').classList.remove('panning');if(moved){$('#map').dataset.ignoreClick='1';setTimeout(()=>delete $('#map').dataset.ignoreClick,40);}}
+  $('#map').addEventListener('pointerup',endPan);$('#map').addEventListener('pointercancel',endPan);
+  $('#map').addEventListener('wheel',e=>{e.preventDefault();mapZoom=Math.max(3,Math.min(19,mapZoom+(e.deltaY<0?1:-1)));renderMap();},{passive:false});
+  $('#map').addEventListener('click',e=>{if($('#map').dataset.ignoreClick){e.stopImmediatePropagation();delete $('#map').dataset.ignoreClick;}},true);
+  $('#cardsView').addEventListener('pointerdown',onDragStartPointer);
+  document.addEventListener('pointermove',onDragMovePointer,{passive:false});
+  document.addEventListener('pointerup',onDragEndPointer);
+  document.addEventListener('pointercancel',onDragEndPointer);
+  window.addEventListener('resize',requestMapRender);
+  document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeEditor();if(pickingCoordinates){pickingCoordinates=false;renderMap();showToast('Выбор координат отменён.');}}});
+
+  initStorage();
+})();
+</script>
+</body>
+</html>
